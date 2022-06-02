@@ -7,17 +7,16 @@ const templateEstudiante = document.querySelector(
 const templateProfesor = document.querySelector("#templateProfesor").content;
 const alert = document.querySelector(".alert");
 
-
 const estudiantes = [];  //creo array donde voy a acumular los objetos que se creen  y para poder utilizar el forEach  para poder pintarlos en el html
 const profesores = [];
 
 document.addEventListener("click", (e) => {
     // console.log(e.target.dataset.nombre);
-    if (e.target.dataset.nombre) {
+    if (e.target.dataset.uid) {
         // console.log(e.target.matches(".btn-success"));
         if (e.target.matches(".btn-success")) {
             estudiantes.map(item => {
-                if (item.nombre === e.target.dataset.nombre) {
+                if (item.uid === e.target.dataset.uid) {
                     item.setEstado = true
                 }
                 console.log(item); // al clickear en aprobar el estado vamos a ver que esta en false
@@ -27,7 +26,7 @@ document.addEventListener("click", (e) => {
         }
         if (e.target.matches('.btn-danger')) {
             estudiantes.map(item => {
-                if (item.nombre === e.target.dataset.nombre) {
+                if (item.uid === e.target.dataset.uid) {
                     item.setEstado = false
                 }
                 console.log(item); // al clickear en aprobar el estado vamos a ver que esta en false
@@ -43,6 +42,8 @@ formulario.addEventListener("submit", e => {
 
     e.preventDefault();
 
+    alert.classList.add('d-none'); //porque cuando lo removemos en la linea ... porque se envio un espacio en blanco el cartel del html en rojo se nos va a quedar si luego enviamos otra vez el campo pero sin espacio entonces en esta linea cada vez que enviamos el formulario (evento de submit) vamos a agregar el d-none a la etiqueta
+
     const datos = new FormData(formulario);
     console.log(datos);
     console.log(datos.values());   //salida:iterator {}
@@ -52,6 +53,14 @@ formulario.addEventListener("submit", e => {
     const [nombre, edad, opcion] = [...datos.values()] //destructuring: esta sintaxis permite desempacar valores de arrays o propiedades de obetos en distintas variables, en este caso estamos diciendo que los valores que vengan de el formulario se asiguen (por posicion) a las variables del array de la izquierda del igual. 
     // console.log(opcion);
     console.log(nombre, edad, opcion);
+
+    if (!nombre.trim() || !edad.trim() || !opcion.trim()) { //trim devuelve 
+        console.log("algun dato en blanco");
+        alert.classList.remove('d-none');
+        return
+    }
+
+
 
     if (opcion === "Estudiante") {
 
@@ -83,6 +92,7 @@ class Persona {
     constructor(nombre, edad) {
         this.nombre = nombre;
         this.edad = edad;
+        this.uid = `${Date.now()}`; //id de usuario provisorio (no se tendria que hacer asi), esta entre `${}` para tranformarlo a string porque al hacer el matches para q coinsidan entre los dos uid del evento de la card con uid del objeto en cuestion, al estar en el html lo podemos ver que esta en tipo string y en la consola sin pasarlo a string como hicimos en esta linea esta en tipo number entonces no van a coinsidir otra opcion era que en los if en ves de hacerlo con el identico (===) hacerlo con el igual (==)
     }
 
     static pintarPersonaUI(personas, tipo) {  //UI: se usa cuando queremos decir que con esta funcion vamos a pintar en el html
@@ -150,8 +160,8 @@ class Estudiante extends Persona {
 
         clone.querySelector('.badge').textContent = this.#estado ? "Aprobado" : "Reprobado"; //operador ternario (?:) si this.#estado es verdadero el contenido de la etiqueta con la clase badge es Aprobado si es false reprobado //lo hacemos fuera de los if porq asi es dinamico y no ay q agregar a los dos
 
-        clone.querySelector('.btn-success').dataset.nombre = this.nombre
-        clone.querySelector('.btn-danger').dataset.nombre = this.nombre
+        clone.querySelector('.btn-success').dataset.uid = this.uid
+        clone.querySelector('.btn-danger').dataset.uid = this.uid
 
         return clone
     }
